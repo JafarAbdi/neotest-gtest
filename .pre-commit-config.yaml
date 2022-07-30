@@ -29,4 +29,3 @@ repos:
     rev: v1.0.0
     hooks:
       - id: luacheck
-
