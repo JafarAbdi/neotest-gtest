@@ -80,7 +80,7 @@ query = vim.treesitter.query.parse_query("cpp", query)
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function adapter.discover_positions(file_path)
-  local position_id = function(position, namespaces)
+  local position_id = function(position, _)
     return position.path .. "::" .. test_name_to_position_id(position.name)
   end
   return lib.treesitter.parse_positions(
@@ -98,7 +98,7 @@ function adapter.build_spec(args)
     return
   end
   local project_config = ProjectConfig.new()
-  local target_dir, target, target_args = project_config:get_current_target()
+  local target_dir, target, _ = project_config:get_current_target()
   local results_path = async.fn.tempname()
   local command = target.filename .. " --gtest_output=json:" .. results_path .. " --gtest_color=yes"
   if data.type == "test" then
@@ -147,7 +147,7 @@ local function error_info(tree, error)
   local filename, linenum = location:match("(.*)%:(%d+)$")
   -- 3 cases:
   -- First line is "unknown file": exception thrown somewhere
-  -- First line is "/path/to/file:linenum", the failure is insde the test
+  -- First line is "/path/to/file:linenum", the failure is inside the test
   -- First line is "/path/to/file:linenum", the failure is outside the test
   local header
   if linenum ~= nil then
@@ -226,7 +226,6 @@ function adapter.results(spec, result, tree)
   local gtest_output = vim.json.decode(data) or { testsuites = {} }
   local reports = {}
   local position_id = tree:data().path
-  local test_data = tree:get_key(position_id)
   reports[position_id] = {
     status = gtest_output.failures == 0 and "passed" or "failed",
     output = result.output,
@@ -245,7 +244,7 @@ function adapter.results(spec, result, tree)
   for _, testsuite in ipairs(gtest_output.testsuites) do
     for _, test in ipairs(testsuite.testsuite) do
       position_id = tree:data().path .. "::" .. test.classname .. "." .. test.name
-      test_data = tree:get_key(position_id)
+      local test_data = tree:get_key(position_id)
       reports[position_id] = {
         status = get_status(test),
         output = result.output,
