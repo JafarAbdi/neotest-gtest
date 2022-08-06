@@ -8,5 +8,12 @@ This plugin provides a [gtest](https://www.google.com/search?q=gtest) adapter th
 
 Requires both [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) for the C++ parser and [neovim-cmake](https://github.com/Shatur/neovim-cmake) for building/running tests.
 
+## Configuration
+```lua
+require('neotest-gtest').setup({
+    test_path_pattern = {".*_test%.cpp", ".*_test%.cc"}, -- The path pattern to detect test files
+})
+```
+
 ## Acknowledgements
  * Reporting test results was copied from https://github.com/alfaix/neotest-gtest
