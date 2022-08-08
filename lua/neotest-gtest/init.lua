@@ -1,6 +1,7 @@
 local async = require("neotest.async")
 local lib = require("neotest.lib")
 local ProjectConfig = require("cmake.project_config")
+local config = require("neotest-gtest.config")
 
 ---@class Failure
 ---@field failure string
@@ -42,6 +43,10 @@ end
 ---@field name string
 local adapter = { name = "neotest-gtest" }
 
+function adapter.setup(values)
+  setmetatable(config, { __index = vim.tbl_deep_extend("force", config.defaults, values) })
+end
+
 ---Find the project root directory given a current directory to work from.
 ---Should no root be found, the adapter can still be used in a non-project context if a test file matches.
 ---@async
@@ -58,8 +63,12 @@ adapter.root = lib.files.match_root_pattern(
 ---@param file_path string
 ---@return boolean
 function adapter.is_test_file(file_path)
-  -- TODO: How to differentiate between static/shared/utility/test targets?
-  return vim.endswith(file_path, ".cpp")
+  for _, pattern in pairs(config.test_path_pattern) do
+    if file_path:match(pattern) then
+      return true
+    end
+  end
+  return false
 end
 
 local query = [[
