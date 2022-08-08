@@ -1,6 +1,6 @@
 local config = {
   defaults = {
-    test_path_pattern = {".*_test%.cpp", ".*_test%.cc"},
+    test_path_pattern = { ".*_test%.cpp", ".*_test%.cc" },
   },
 }
 
