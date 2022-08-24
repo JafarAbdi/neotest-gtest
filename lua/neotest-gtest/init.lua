@@ -80,7 +80,7 @@ local query = [[
                   .
                   (parameter_declaration
                       type: (type_identifier)))) @test.name
-  (#match? @test.name "TEST|TEST_F")) @test.definition
+  (#match? @test.name "TEST|TEST_F|TEST_P")) @test.definition
 ]]
 
 query = vim.treesitter.query.parse_query("cpp", query)
@@ -111,7 +111,7 @@ function adapter.build_spec(args)
   local results_path = async.fn.tempname()
   local command = target.filename .. " --gtest_output=json:" .. results_path .. " --gtest_color=yes"
   if data.type == "test" then
-    command = command .. " --gtest_filter=" .. test_name_to_position_id(data.name)
+    command = command .. " --gtest_filter=" .. "'*" .. test_name_to_position_id(data.name) .. "*'"
   end
   return {
     command = command,
