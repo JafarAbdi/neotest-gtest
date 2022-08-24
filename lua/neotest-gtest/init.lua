@@ -251,7 +251,11 @@ function adapter.results(spec, result, tree)
     errors = {},
   }
   for _, testsuite in ipairs(gtest_output.testsuites) do
+    -- Hacky way to detect if we're running TEST_P
+    local is_test_p = #vim.split(testsuite.name, "/") == 2
     for _, test in ipairs(testsuite.testsuite) do
+      -- TEST_P's classname consists of two parts `XXXX/test_suite_name` -- name consists of two parts `test_name/XXX`
+      -- TEST/TEST_F's classname is just one part `test_suite_name` -- name consists of one part `test_name`
       position_id = tree:data().path .. "::" .. test.classname .. "." .. test.name
       local test_data = tree:get_key(position_id)
       reports[position_id] = {
