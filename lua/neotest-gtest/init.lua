@@ -256,7 +256,9 @@ function adapter.results(spec, result, tree)
     for _, test in ipairs(testsuite.testsuite) do
       -- TEST_P's classname consists of two parts `XXXX/test_suite_name` -- name consists of two parts `test_name/XXX`
       -- TEST/TEST_F's classname is just one part `test_suite_name` -- name consists of one part `test_name`
-      position_id = tree:data().path .. "::" .. test.classname .. "." .. test.name
+      local classname_splitted = vim.split(test.classname, "/")
+      local name_splitted = vim.split(test.name, "/")
+      position_id = tree:data().path .. "::" .. classname_splitted[#classname_splitted] .. "." .. name_splitted[1]
       local test_data = tree:get_key(position_id)
       reports[position_id] = {
         status = get_status(test),
