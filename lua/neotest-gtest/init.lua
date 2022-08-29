@@ -111,7 +111,10 @@ end
 function adapter.build_spec(args)
   local data = args.tree:data()
   if not require("cmake").auto_select_target(data.path) then
-    vim.notify("Failed to select target for the following path '" .. data.path .. "'", vim.log.levels.WARN)
+    vim.notify(
+      "Failed to select target for the following path '" .. data.path .. "'",
+      vim.log.levels.WARN
+    )
     return
   end
   local project_config = ProjectConfig.new()
@@ -119,11 +122,13 @@ function adapter.build_spec(args)
   local results_path = async.fn.tempname()
   local command = target.filename .. " --gtest_output=json:" .. results_path .. " --gtest_color=yes"
   if data.type == "test" then
-    command = command ..
-        " --gtest_filter=" ..
-        (
-        test_name_to_test_type(data.name) == "TEST_P" and "'*/" .. test_name_to_position_id(data.name) .. "/*'" or
-            test_name_to_position_id(data.name))
+    command = command
+      .. " --gtest_filter="
+      .. (
+        test_name_to_test_type(data.name) == "TEST_P"
+          and "'*/" .. test_name_to_position_id(data.name) .. "/*'"
+        or test_name_to_position_id(data.name)
+      )
   end
   return {
     command = command,
@@ -267,15 +272,15 @@ function adapter.results(spec, result, tree)
     status = gtest_output.failures == 0 and "passed" or "failed",
     output = result.output,
     short = gtest_output.name
-        .. "\n"
-        .. "tests: "
-        .. gtest_output.tests
-        .. " failures: "
-        .. gtest_output.failures
-        .. " disabled: "
-        .. gtest_output.disabled
-        .. " errors: "
-        .. gtest_output.errors,
+      .. "\n"
+      .. "tests: "
+      .. gtest_output.tests
+      .. " failures: "
+      .. gtest_output.failures
+      .. " disabled: "
+      .. gtest_output.disabled
+      .. " errors: "
+      .. gtest_output.errors,
     errors = {},
   }
   for _, testsuite in ipairs(gtest_output.testsuites) do
@@ -284,7 +289,11 @@ function adapter.results(spec, result, tree)
       -- TEST/TEST_F's classname is just one part `test_suite_name` -- name consists of one part `test_name`
       local classname_splitted = vim.split(test.classname, "/")
       local name_splitted = vim.split(test.name, "/")
-      position_id = tree:data().path .. "::" .. classname_splitted[#classname_splitted] .. "." .. name_splitted[1]
+      position_id = tree:data().path
+        .. "::"
+        .. classname_splitted[#classname_splitted]
+        .. "."
+        .. name_splitted[1]
       local test_data = tree:get_key(position_id)
       reports[position_id] = combine_results(reports[position_id], {
         status = get_status(test),
